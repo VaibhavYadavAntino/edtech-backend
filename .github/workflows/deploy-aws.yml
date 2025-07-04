@@ -56,7 +56,7 @@ jobs:
       
       - name: Run Docker container
         run: |
-          docker run -d -p 7005:7005 \
+          docker run -d -p --restart always 7005:7005 \
             -v /home/ubuntu/EdTechBackend/config/application.properties:/app/src/main/resources/application.properties \
             --name edtech-backend-container \
             vaibhavyadav350/edtech-backend:latest
