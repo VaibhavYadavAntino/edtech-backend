@@ -1,0 +1,59 @@
+name: CICD
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Login to DockerHub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker Image
+        run: docker build -t vaibhavyadav350/edtech-backend .
+
+      - name: Publish Image to DockerHub
+        run: docker push vaibhavyadav350/edtech-backend:latest
+#EDTECH@2025
+  deploy:
+    needs: build
+    runs-on: [self-hosted, linux, x64]
+    steps:
+      - name: Confirm runner
+        run: echo "Runner is working!!! Connected to EC2"
+
+      - name: Pull latest image
+        run: docker pull vaibhavyadav350/edtech-backend:latest
+
+      - name: Delete old container
+        run: docker rm -f edtech-backend-container || true
+
+      - name: Create env directory
+        run: mkdir -p /home/ubuntu/EdTechBackend
+
+      - name: Create config directory
+        run: mkdir -p /home/ubuntu/EdTechBackend/config
+
+      - name: Write application.properties file
+        run: echo "${{ secrets.APPLICATION_PROPERTIES }}" > /home/ubuntu/EdTechBackend/config/application.properties
+      
+      - name: Run Docker container
+        run: |
+          docker run -d -p 7005:7005 \
+            -v /home/ubuntu/EdTechBackend/config/application.properties:/app/src/main/resources/application.properties \
+            --name edtech-backend-container \
+            vaibhavyadav350/edtech-backend:latest
