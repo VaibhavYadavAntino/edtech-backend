@@ -9,4 +9,4 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 7005
-ENTRYPOINT ["java", "-jar", "app.jar", "--spring.config.location=file:/config/application.properties"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
