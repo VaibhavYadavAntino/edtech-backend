@@ -35,7 +35,10 @@ jobs:
     steps:
       - name: Confirm runner
         run: echo "Runner is working!!! Connected to EC2"
-
+        
+      - name: Docker Login
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        
       - name: Pull latest image
         run: docker pull vaibhavyadav350/edtech-backend:latest
 
